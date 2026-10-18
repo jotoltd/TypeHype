@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeHype — 3D Typing Game</title>
+    <link rel="stylesheet" href="styles.css?v=7">
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer" class="ui-layer">
+        <div id="hud" class="hud hidden">
+            <div class="hud-group">
+                <span class="hud-label">Score</span>
+                <span id="score" class="hud-value">0</span>
+            </div>
+            <div class="hud-group">
+                <span class="hud-label">Streak</span>
+                <span id="streak" class="hud-value">0</span>
+            </div>
+            <div class="hud-group">
+                <span class="hud-label">Wave</span>
+                <span id="wave" class="hud-value">1</span>
+            </div>
+            <div class="hud-group">
+                <span class="hud-label">WPM</span>
+                <span id="hud-wpm" class="hud-value">0</span>
+            </div>
+            <div class="hud-group">
+                <span class="hud-label">Acc</span>
+                <span id="hud-acc" class="hud-value">&mdash;</span>
+            </div>
+            <div class="hud-group health-group">
+                <span class="hud-label">Health</span>
+                <div id="health-bar" class="health-bar">
+                    <div class="health-fill"></div>
+                </div>
+            </div>
+            <div class="hud-group">
+                <button id="sound-toggle" class="sound-toggle" aria-label="Toggle sound" title="Toggle sound">
+                    <svg id="sound-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div id="typing-target" class="typing-target hidden">
+            <span id="target-typed" class="target-typed"></span><span id="target-untyped" class="target-untyped"></span>
+        </div>
+
+        <div id="powerup-toast" class="powerup-toast hidden"></div>
+        <div id="active-effects" class="active-effects hidden"></div>
+        <div id="screen-flash" class="screen-flash"></div>
+        <div id="danger-vignette" class="danger-vignette"></div>
+        <div id="score-popup-layer" class="score-popup-layer"></div>
+        <div id="combo-meter" class="combo-meter hidden">
+            <div class="combo-bar-fill"></div>
+            <span class="combo-label">Combo</span>
+        </div>
+        <div id="boss-banner" class="boss-banner hidden"></div>
+        <div id="achievement-toast" class="achievement-toast hidden"></div>
+        <div id="key-ripple-layer" class="key-ripple-layer"></div>
+
+        <div id="start-screen" class="screen">
+            <div class="screen-content">
+                <h1 class="title">TypeHype</h1>
+                <p class="subtitle">3D Typing Survival</p>
+                <div class="instructions">
+                    <p>Words will fly toward you through hyperspace.</p>
+                    <p>Type them before they collide to survive.</p>
+                    <p>Press <kbd>Enter</kbd> to restart a word if you make a mistake.</p>
+                    <p>Type the <b>glowing power-up</b> text to collect bonuses.</p>
+                    <p><b>Golden words</b> are worth triple points. Type words without mistakes for PERFECT bonuses.</p>
+                    <p>Press <kbd>Esc</kbd> to pause.</p>
+                </div>
+                <div class="difficulty-selector">
+                    <span class="difficulty-label">Difficulty</span>
+                    <div class="difficulty-options">
+                        <button class="difficulty-btn" data-difficulty="kids">Kids</button>
+                        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                        <button class="difficulty-btn selected" data-difficulty="normal">Normal</button>
+                        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                        <button class="difficulty-btn" data-difficulty="insane">Insane</button>
+                    </div>
+                </div>
+                <div class="start-actions">
+                    <button id="start-btn" class="btn-primary">Start Game</button>
+                    <button id="customize-btn" class="btn-secondary">Customize Theme</button>
+                    <button id="achievements-btn" class="btn-secondary">Achievements</button>
+                </div>
+                <div class="start-layout">
+                    <div id="global-stats" class="stats-panel">
+                        <h3 class="stats-title">Your Stats</h3>
+                        <div class="stats-grid">
+                            <div><span class="stat-value" id="stat-total-score">0</span><span class="stat-label">Total Score</span></div>
+                            <div><span class="stat-value" id="stat-runs">0</span><span class="stat-label">Runs</span></div>
+                            <div><span class="stat-value" id="stat-best-streak">0</span><span class="stat-label">Best Streak</span></div>
+                            <div><span class="stat-value" id="stat-longest-time">0s</span><span class="stat-label">Longest Run</span></div>
+                        </div>
+                    </div>
+                    <div id="leaderboard" class="leaderboard">
+                        <h3 class="leaderboard-title">High Scores</h3>
+                        <ol id="leaderboard-list" class="leaderboard-list"></ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="customize-screen" class="screen hidden">
+            <div class="screen-content">
+                <h2 class="title-over">Customize</h2>
+                <p class="subtitle">Unlock themes by earning total score</p>
+                <div id="theme-grid" class="theme-grid"></div>
+                <button id="back-btn" class="btn-primary">Back</button>
+            </div>
+        </div>
+
+        <div id="achievements-screen" class="screen hidden">
+            <div class="screen-content">
+                <h2 class="title-over">Achievements</h2>
+                <p class="subtitle">Unlock badges by playing</p>
+                <div id="achievement-grid" class="achievement-grid"></div>
+                <button id="achievements-back-btn" class="btn-primary">Back</button>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="screen hidden">
+            <div class="screen-content">
+                <h2 class="title-over">Game Over</h2>
+                <p class="final-score">Score: <span id="final-score">0</span></p>
+                <p class="final-stats">Best Streak: <span id="final-streak">0</span> · Wave: <span id="final-wave">1</span></p>
+                <div id="run-stats" class="stats-panel compact">
+                    <h3 class="stats-title">Run Stats</h3>
+                    <div class="stats-grid">
+                        <div><span class="stat-value" id="run-wpm">0</span><span class="stat-label">WPM</span></div>
+                        <div><span class="stat-value" id="run-accuracy">0%</span><span class="stat-label">Accuracy</span></div>
+                        <div><span class="stat-value" id="run-words">0</span><span class="stat-label">Words</span></div>
+                        <div><span class="stat-value" id="run-time">0s</span><span class="stat-label">Time</span></div>
+                    </div>
+                </div>
+                <div id="new-highscore" class="new-highscore hidden">New High Score!</div>
+                <div class="start-actions">
+                    <button id="restart-btn" class="btn-primary">Play Again</button>
+                    <button id="menu-btn" class="btn-secondary">Main Menu</button>
+                </div>
+                <div id="leaderboard-end" class="leaderboard compact">
+                    <h3 class="leaderboard-title">High Scores</h3>
+                    <ol id="leaderboard-list-end" class="leaderboard-list"></ol>
+                </div>
+            </div>
+        </div>
+
+        <div id="pause-screen" class="screen hidden">
+            <div class="screen-content">
+                <h2 class="title-over">Paused</h2>
+                <p class="subtitle">Press <kbd>Esc</kbd> to resume</p>
+                <div class="start-actions">
+                    <button id="resume-btn" class="btn-primary">Resume</button>
+                    <button id="pause-menu-btn" class="btn-secondary">Quit to Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="virtual-keyboard" class="virtual-keyboard hidden">
+            <div class="keyboard-row" data-row="q"></div>
+            <div class="keyboard-row" data-row="a"></div>
+            <div class="keyboard-row" data-row="z"></div>
+            <div class="keyboard-actions">
+                <button class="key key-action key-space" data-key=" ">Space</button>
+                <button class="key key-action" data-key="Enter">Enter</button>
+                <button class="key key-action" data-key="Backspace">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+    <script src="game.js?v=11"></script>
+</body>
+</html>
