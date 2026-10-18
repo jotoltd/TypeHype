@@ -73,8 +73,8 @@
         baseSpeed: 16,
         fov: 75,
         cameraZ: 0,
-        wordFont: '900 56px "Segoe UI", Roboto, sans-serif',
-        powerUpFont: '900 60px "Segoe UI", Roboto, sans-serif',
+        wordFont: '900 56px "Audiowide", "Segoe UI", sans-serif',
+        powerUpFont: '900 60px "Audiowide", "Segoe UI", sans-serif',
         colors: {
             untyped: '#ffffff',
             untypedGlow: 'rgba(0, 240, 255, 0.35)',
@@ -882,12 +882,12 @@
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const padding = 40;
-        ctx.font = '900 48px "Segoe UI", Roboto, sans-serif';
+        ctx.font = '900 48px "Audiowide", "Segoe UI", sans-serif';
         const metrics = ctx.measureText(text);
         canvas.width = Math.ceil(metrics.width + padding * 2);
         canvas.height = 120;
 
-        ctx.font = '900 48px "Segoe UI", Roboto, sans-serif';
+        ctx.font = '900 48px "Audiowide", "Segoe UI", sans-serif';
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
 
@@ -2233,12 +2233,12 @@
     function createAdTexture(text, colorHex) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        ctx.font = '800 42px "Segoe UI", Roboto, sans-serif';
+        ctx.font = '800 42px "Audiowide", "Segoe UI", sans-serif';
         const metrics = ctx.measureText(text);
         canvas.width = Math.ceil(metrics.width + 110);
         canvas.height = 118;
 
-        ctx.font = '800 42px "Segoe UI", Roboto, sans-serif';
+        ctx.font = '800 42px "Audiowide", "Segoe UI", sans-serif';
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
         const cx = canvas.width / 2;
@@ -2258,7 +2258,7 @@
         ctx.fillStyle = '#ffffff';
         ctx.fillText(text, cx, cy - 12);
 
-        ctx.font = '600 16px "Segoe UI", Roboto, sans-serif';
+        ctx.font = '600 16px "Audiowide", "Segoe UI", sans-serif';
         ctx.shadowBlur = 8;
         ctx.fillStyle = colorHex;
         ctx.fillText('· SPONSORED ·', cx, cy + 28);
@@ -2350,5 +2350,8 @@
         updateVirtualKeyboardVisibility();
     }
 
-    init();
+    const fontReady = document.fonts && document.fonts.load
+        ? document.fonts.load('400 56px "Audiowide"').catch(() => {})
+        : Promise.resolve();
+    Promise.race([fontReady, new Promise(r => setTimeout(r, 3000))]).then(init);
 })();
